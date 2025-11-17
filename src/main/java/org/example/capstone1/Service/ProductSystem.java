@@ -30,7 +30,6 @@ public class ProductSystem {
         return false;
     }
 
-
     public boolean updateProduct(String id , Product product){
         for (int i = 0 ; i < products.size() ; i++){
             if (products.get(i).getId().equalsIgnoreCase(id)){
@@ -50,4 +49,5 @@ public class ProductSystem {
         }
         return false;
     }
+    
 }

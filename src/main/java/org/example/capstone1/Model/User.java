@@ -1,9 +1,6 @@
 package org.example.capstone1.Model;
 
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -28,4 +25,6 @@ public class User {
     @NotEmpty(message = "password must be not empty")
     private String password;
 
+    @Positive(message = "must be positive number ")
+    private int balance;
 }
