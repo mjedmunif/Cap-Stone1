@@ -1,13 +1,18 @@
 package org.example.capstone1.Controller;
 
+import org.example.capstone1.Model.MerchantStock;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.capstone1.Api.ApiResponse;
 import org.example.capstone1.Model.User;
+import org.example.capstone1.Service.MerchantStockSystem;
 import org.example.capstone1.Service.UserSystem;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
 
 @RestController
 @RequestMapping("/api/v1/user")
@@ -15,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserSystem userSystem;
+    private final MerchantStockSystem merchantStockSystem;
 
 
     @GetMapping("/get")
@@ -81,5 +87,37 @@ public class UserController {
             return ResponseEntity.status(404).body(new ApiResponse("your balance less than cost the product"));
         }
         return ResponseEntity.status(200).body(new ApiResponse("done"));
+    }
+
+    @PostMapping("/return/{userId}/{productId}/{merchantId}")
+    public ResponseEntity<?> returnProduct(@PathVariable String userId, @PathVariable String productId, @PathVariable String merchantId, @RequestBody String reason) {
+
+        int response = userSystem.returnProduct(userId, productId, merchantId, reason);
+        if (response == 1) {
+            return ResponseEntity.status(400).body(new ApiResponse("not accepted"));
+        }
+        if (response == 2){
+            return ResponseEntity.status(400).body(new ApiResponse("user not found"));
+        }
+        if (response == 3){
+            return ResponseEntity.status(400).body(new ApiResponse("product not found"));
+        }
+        if (response == 4){
+            return ResponseEntity.status(400).body(new ApiResponse("no relation between product and merchant"));
+        }
+        return ResponseEntity.status(200).body(new ApiResponse("accepted"));
+    }
+
+
+    @GetMapping("/substitute/{productId}/{merchantId}")
+    public ResponseEntity<?> getSubstitutes(@PathVariable String productId, @PathVariable String merchantId) {
+
+        ApiResponse response = userSystem.checkSubstitute(productId, merchantId);
+
+        if (response.getMessage().equals("no substitute products found")) {
+            return ResponseEntity.status(404).body(response);
+        }
+
+        return ResponseEntity.status(200).body(response);
     }
 }

@@ -37,7 +37,6 @@ public class MerchantStockController {
         if (checked == 4){
             return ResponseEntity.status(404).body(new ApiResponse("id product not found"));
         }
-        merchantStockSystem.addNewMerchantStock(merchantStock);
         return ResponseEntity.status(200).body(new ApiResponse("added merchant stock successfully"));
     }
 
@@ -72,4 +71,16 @@ public class MerchantStockController {
         }
         return ResponseEntity.status(400).body(new ApiResponse("product id or merchant id invalid"));
     }
+
+    @GetMapping("/low")
+    public ResponseEntity<?> getLowStockProducts() {
+
+        if (merchantStockSystem.getLowStockProducts().isEmpty()) {
+            return ResponseEntity.status(404).body(new ApiResponse("No products are low in stock"));
+        }
+
+        return ResponseEntity.status(200).body(merchantStockSystem.getLowStockProducts());
+    }
+
+
 }

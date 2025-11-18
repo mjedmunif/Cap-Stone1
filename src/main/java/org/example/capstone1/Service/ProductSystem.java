@@ -2,6 +2,7 @@ package org.example.capstone1.Service;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.example.capstone1.Api.ApiResponse;
 import org.example.capstone1.Model.Category;
 import org.example.capstone1.Model.Product;
 import org.springframework.stereotype.Service;
@@ -48,6 +49,21 @@ public class ProductSystem {
             }
         }
         return false;
+    }
+
+    public ArrayList<Product> getSortedProducts() {
+        ArrayList<Product> sorted = new ArrayList<>(products);
+        for (int i = 0; i < sorted.size(); i++) {
+            for (int j = i + 1; j < sorted.size(); j++) {
+                Product p1 = sorted.get(i);
+                Product p2 = sorted.get(j);
+                if (p1.getPrice() > p2.getPrice()) {
+                    sorted.set(i, p2);
+                    sorted.set(j, p1);
+                }
+            }
+        }
+        return sorted;
     }
     
 }

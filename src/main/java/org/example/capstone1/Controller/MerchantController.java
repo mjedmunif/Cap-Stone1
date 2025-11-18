@@ -4,10 +4,13 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.capstone1.Api.ApiResponse;
 import org.example.capstone1.Model.Merchant;
+import org.example.capstone1.Service.MerchantStockSystem;
 import org.example.capstone1.Service.MerchantSystem;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
 
 @RestController
 @RequestMapping("/api/v1/merchant")
@@ -15,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 public class MerchantController {
 
     private final MerchantSystem merchantSystem;
+    private final MerchantStockSystem merchantStockSystem;
 
     @GetMapping("/get")
     public ResponseEntity<?> getMerchants(){
@@ -56,4 +60,28 @@ public class MerchantController {
         }
         return ResponseEntity.status(404).body(new ApiResponse("Not found"));
     }
+
+
+    @GetMapping("/slowProducts/{merchantId}")
+    public ResponseEntity<?> getSlowProductsSimple(@PathVariable String merchantId) {
+
+        ArrayList<String> messages = merchantStockSystem.getSlowProductsSimple(merchantId);
+
+        if (messages.isEmpty()) {
+            return ResponseEntity.status(400).body(new ApiResponse("merchant not found or has no products"));
+        }
+        StringBuilder sb = new StringBuilder();
+        for (String msg : messages) {
+            sb.append(msg).append(" | ");
+        }
+
+        if (sb.length() > 3) {
+            sb.setLength(sb.length() - 3);
+        }
+
+        String finalMessage = sb.toString();
+        return ResponseEntity.status(200).body(new ApiResponse(finalMessage));
+    }
+
+
 }

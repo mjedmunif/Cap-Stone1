@@ -76,4 +76,53 @@ public class MerchantStockSystem {
         }
         return false;
     }
+
+    public ArrayList<MerchantStock> getLowStockProducts() {
+        ArrayList<MerchantStock> low = new ArrayList<>();
+        for (MerchantStock ms : merchantStocks) {
+            if (ms.getStock() < 5) {   // threshold
+                low.add(ms);
+            }
+        }
+        return low;
+    }
+
+    public MerchantStock getMerchantAlmostOut(String productId) {
+        MerchantStock lowest = null;
+        for (MerchantStock ms : merchantStocks) {
+            if (ms.getProductId().equalsIgnoreCase(productId) && ms.getStock() > 0) {
+                if (lowest == null || ms.getStock() < lowest.getStock()) {
+                    lowest = ms;
+                }
+            }
+        }
+        return lowest;
+    }
+
+    public ArrayList<String> getSlowProductsSimple(String merchantId) {
+
+        ArrayList<String> result = new ArrayList<>();
+
+        for (MerchantStock ms : merchantStocks) {
+
+            if (ms.getMerchantId().equalsIgnoreCase(merchantId)) {
+
+                String message;
+
+                if (ms.getStock() > 15) {
+                    message = "product: " + ms.getProductId() + " has high stock (" + ms.getStock() + ") consider discount";
+                } else if (ms.getStock() >= 6) {
+                    message = "product: " + ms.getProductId() + " stock: " + ms.getStock() + " sales stable";
+                } else if (ms.getStock() >= 1) {
+                    message = "product: " + ms.getProductId() + " stock: " + ms.getStock() + " prepare to restock soon";
+                } else {
+                    message = "product: " + ms.getProductId() + " is out of stock";
+                }
+
+                result.add(message);
+            }
+        }
+
+        return result;
+    }
 }

@@ -3,11 +3,15 @@ package org.example.capstone1.Controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.capstone1.Api.ApiResponse;
+import org.example.capstone1.Model.MerchantStock;
 import org.example.capstone1.Model.Product;
+import org.example.capstone1.Service.MerchantStockSystem;
 import org.example.capstone1.Service.ProductSystem;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
 
 @RestController
 @RequestMapping("/api/v1/product")
@@ -15,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 public class ProductController {
 
     private final ProductSystem productSystem;
+    private final MerchantStockSystem merchantStockSystem;
 
     @GetMapping("/get")
     public ResponseEntity<?> getProducts(){
@@ -57,5 +62,25 @@ public class ProductController {
             return ResponseEntity.status(200).body(new ApiResponse("deleted successfully"));
         }
         return ResponseEntity.status(404).body(new ApiResponse("updated successfully"));
+    }
+
+    @GetMapping("/almostOut/{productId}")
+    public ResponseEntity<?> getAlmostOut(@PathVariable String productId) {
+
+        MerchantStock ms = merchantStockSystem.getMerchantAlmostOut(productId);
+
+        if (ms == null) {
+            return ResponseEntity.status(404).body(new ApiResponse("no merchant has this product in stock"));
+        }
+
+        return ResponseEntity.status(200).body(ms);
+    }
+
+    @GetMapping("/sortedPrice")
+    public ResponseEntity<?> getProductsSortedByPrice() {
+        if (productSystem.getSortedProducts().isEmpty()) {
+            return ResponseEntity.status(404).body(new ApiResponse("no products found"));
+        }
+        return ResponseEntity.status(200).body(productSystem.getSortedProducts());
     }
 }

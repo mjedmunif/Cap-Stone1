@@ -1,6 +1,7 @@
 package org.example.capstone1.Service;
 
 
+import org.example.capstone1.Api.ApiResponse;
 import org.example.capstone1.Model.Merchant;
 import org.example.capstone1.Model.MerchantStock;
 import org.example.capstone1.Model.Product;
@@ -105,5 +106,80 @@ public class UserSystem {
             user.setBalance(user.getBalance() - product.getPrice());
             return 0;
         }
+
+    public int returnProduct(String userId, String productId, String merchantId, String reason) {
+
+        ArrayList<String> allowedReasons = new ArrayList<>();
+        allowedReasons.add("damaged");
+        allowedReasons.add("not working");
+        allowedReasons.add("wrong color");
+
+        if (!allowedReasons.contains(reason.toLowerCase())) {
+            return 1; //not accsepted
+        }
+
+        User user = null;
+        for (User u : users) {
+            if (u.getId().equalsIgnoreCase(userId)) {
+                user = u;
+                break;
+            }
+        }
+        if (user == null) return 2; // user not found
+
+        Product product = null;
+        for (Product p : productSystem.products) {
+            if (p.getId().equalsIgnoreCase(productId)) {
+                product = p;
+                break;
+            }
+        }
+        if (product == null) return 3; //product not found
+
+        MerchantStock stockRecord = null;
+        for (MerchantStock ms : merchantStockSystem.getMerchantStocks()) {
+            if (ms.getProductId().equalsIgnoreCase(productId)
+                    && ms.getMerchantId().equalsIgnoreCase(merchantId)) {
+                stockRecord = ms;
+                break;
+            }
+        }
+        if (stockRecord == null){
+            return 4;
+        }
+
+        stockRecord.setStock(stockRecord.getStock() + 1);
+        user.setBalance(user.getBalance() + product.getPrice());
+        return 0;
+    }
+
+    public ApiResponse checkSubstitute(String productId, String merchantId) {
+        for (MerchantStock ms : merchantStockSystem.getMerchantStocks()) {
+            if (ms.getProductId().equalsIgnoreCase(productId)
+                    && ms.getMerchantId().equalsIgnoreCase(merchantId)) {
+
+                if (ms.getStock() > 0) {
+                    return new ApiResponse("product is available, stock: " + ms.getStock());
+                }
+            }
+        }
+        String alternatives = "";
+        for (MerchantStock ms : merchantStockSystem.getMerchantStocks()) {
+
+            if (ms.getProductId().equalsIgnoreCase(productId)
+                    && !ms.getMerchantId().equalsIgnoreCase(merchantId)) {
+
+                alternatives += "merchant: " + ms.getMerchantId() + ", stock: " + ms.getStock() + " , ";
+            }
+        }
+        if (alternatives.isEmpty()) {
+            return new ApiResponse("no substitute products found");
+        }
+
+
+        alternatives = alternatives.substring(0, alternatives.length() - 2);
+
+        return new ApiResponse("alternatives: " + alternatives);
+    }
 
 }
